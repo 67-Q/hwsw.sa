@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python 小畫家</title>
+
+<link rel="stylesheet" href="Codeing.css">
+</head>
+
+<body>
+  <!-- ===================== 【區塊】標題列 ===================== -->
+  <header>
+    <h1> Python 小畫家</h1>
+    <select id="examples" title="載入範例程式">
+      <option value="">載入範例…</option>
+      <option value="square">正方形(基礎)</option>
+      <option value="circle">圓形(基礎)</option>
+      <option value="flower">花(基礎)</option>
+      <option value="pumpkin">南瓜</option>
+      <option value="web">蜘蛛網</option>
+      <option value="bat">蝙蝠</option>
+      <option value="spider">大蜘蛛</option>
+      <option value="castle">城堡</option>
+      <option value="halloween">萬聖節</option>
+    </select>
+    <span id="status">載入 Python 中…</span>
+    <button id="themeBtn" title="切換淺色／深色">🌙 深色</button>
+    <button id="runBtn" disabled>▶ 執行 (Ctrl+Enter)</button>
+    <button id="stopBtn">■ 停止</button>
+    <button id="clearBtn">清除</button>
+  </header>
+
+  <div id="main">
+    <!-- ===================== 【區塊】左半部：圖形顯示（上）＋ 文字輸出（下） ===================== -->
+    <section id="left">
+      <div id="graphWrap">
+        <div class="label">圖形顯示（拖曳下方表情符號到畫面上，雙擊可刪除）</div>
+        <div id="tray"></div>
+        <div id="graphBox">
+          <div id="world"><div id="graph"></div></div>
+          <canvas id="gridCv"></canvas>
+          <div id="stickers"></div>
+          <div id="viewBtns">
+            <button id="zoomIn" title="放大">＋</button>
+            <button id="zoomOut" title="縮小">－</button>
+            <button id="homeBtn" title="回到原點">⌂</button>
+          </div>
+        </div>
+      </div>
+      <div class="hsplit" id="hsplit" title="上下拖曳調整高度"></div>
+      <div id="outWrap">
+        <div class="label">輸出結果</div>
+        <pre id="out"></pre>
+      </div>
+    </section>
+
+    <div class="vsplit" id="vsplit" title="左右拖曳調整寬度"></div>
+
+    <!-- ===================== 【區塊】右半部：顏色按鈕 + Python 程式碼 ===================== -->
+    <section id="right">
+      <div class="label">Python 程式碼</div>
+      <div id="palette">
+        <div class="pal-row" id="lineColors">
+          <span class="pal-title">線條顏色</span>
+        </div>
+        <div class="pal-row" id="fillColors">
+          <span class="pal-title">填色</span>
+        </div>
+      </div>
+      <div id="editorHost">
+<textarea id="code" spellcheck="false">import turtle
+
+t = turtle.Turtle()
+t.color("orange")      # 改改看：red、blue、green、purple…
+t.pensize(3)
+
+# 用迴圈畫一個正方形
+for i in range(4):
+    t.forward(100)
+    t.left(90)
+
+print("畫好囉！")
+</textarea>
+      </div>
+    </section>
+  </div>
+
+<script src="Codeing.js"></script>
+</body>
+</html>
