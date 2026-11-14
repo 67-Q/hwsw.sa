@@ -1,0 +1,11 @@
+# 玩家動作素材
+
+來源：Eris Esra, Character Templates Pack 4.1
+https://erisesra.itch.io/character-templates-pack
+
+已按原始圖格裁切為單張透明 PNG。16x16 角色採 24x24 畫布；16x32 角色採 32x32 畫布。
+方向資料夾依原 spritesheet 列順序標記：下、下側、側面、上側、上。每個動作資料夾內以 01、02… 表示動畫影格順序。
+
+素材包授權允許遊戲專案（商用與非商用）使用；不可重新包裝轉售為素材包。素材包原文要求：若成品免費，必須標註作者並連結原素材。
+
+注意：素材包 4.1 沒有 Block（格擋／阻塞）動畫。網頁列出的目前動畫有 Walk、Run、Idle、Interact、Jump、Attack；另有 Rotate。本資料夾另存 Rotate 作為翻滾素材，不能當成格擋動畫。

@@ -1,0 +1,11 @@
+Kenney Cartography Pack
+
+素材分類：
+- 素材/PNG/Default：一般尺寸 PNG 圖示
+- 素材/PNG/Retina：高解析 PNG 圖示
+- 背景紋理：羊皮紙背景
+- 精靈圖集：spritesheet PNG 與 XML 座標資料
+- 向量：SVG 向量素材
+- 預覽：素材包預覽圖
+
+授權：CC0，詳見 License.txt。來源：https://kenney.nl/assets/cartography-pack
