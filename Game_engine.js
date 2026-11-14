@@ -1,8 +1,8 @@
 /* ============================================================
    Game_engine.js —— 遊戲畫面與規則（用 SVG 的簡單圖形和線條，沒有用任何圖片素材）
    兩種遊戲：
-     跳躍：game.set_map([0,1,...])  動作 0 = 走、1 = 跳
-     迷宮：game.set_maze()          動作 0 = 跳（原地）、1 = 上、2 = 下、3 = 左、4 = 右
+     跳躍：game.set_map([0,1,...])  地圖 0 = 障礙、1 = 平地；動作 0 = 跳、1 = 走
+     迷宮：game.set_maze()          動作 w = 上、s = 下、a = 左、d = 右、j = 跳（原地）
    共用：game.step(動作)、game.play(動作串列)
    目錄（搜尋 【區塊】 可快速跳轉）
      1. 【區塊】工具與全域變數
@@ -77,6 +77,10 @@ Game.fall = () => (hero ? fall() : Promise.resolve());
 /* ===================== 【區塊】跳躍遊戲 ===================== */
 // 角色站在「邊界線」上：第 i 步 = 從第 i 條邊界走到第 i+1 條，中間跨過第 i 格
 const J = { cell: 60, margin: 70, ground: 220, bw: 16, bh: 40 };
+// 跳躍遊戲的數字約定（想對調 0 與 1，只要改這三行）
+const OBSTACLE = 0;                                           // 地圖上代表「障礙」的數字
+const JUMP = 0;                                               // 動作：跳
+const WALK = 1;                                               // 動作：走
 const hx = b => J.margin + b * J.cell;                        // 第 b 條邊界線的 x
 const bx = i => hx(i) + (J.cell - J.bw) / 2;                  // 第 i 格障礙物的左邊 x
 const hy = J.ground - R - 3;                                  // 角色站在地面上的 y
@@ -93,7 +97,7 @@ Game.setMap = function (arr) {
   let d = 'M 10 ' + J.ground;
   Game.map.forEach((v, i) => {
     d += ' L ' + bx(i) + ' ' + J.ground;
-    d += (v === 1) ? ' l 0 ' + (-J.bh) + ' l ' + J.bw + ' 0 l 0 ' + J.bh : ' l ' + J.bw + ' 0';
+    d += (v === OBSTACLE) ? ' l 0 ' + (-J.bh) + ' l ' + J.bw + ' 0 l 0 ' + J.bh : ' l ' + J.bw + ' 0';
   });
   d += ' L ' + (hx(n) + 110) + ' ' + J.ground;
   mk('path', { d, fill: 'none', stroke: INK, 'stroke-width': 6, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
@@ -101,6 +105,7 @@ Game.setMap = function (arr) {
   const gx = hx(n) + 70;
   mk('rect', { x: gx - 14, y: J.ground - 28, width: 28, height: 28, fill: '#e74c3c', stroke: INK, 'stroke-width': 3 });
   mk('path', { d: 'M ' + gx + ' ' + (J.ground - 28) + ' v 28 M ' + (gx - 14) + ' ' + (J.ground - 14) + ' h 28', stroke: '#f1c40f', 'stroke-width': 4 });
+  text(14, 26, OBSTACLE + ' = 障礙（要跳）　' + (1 - OBSTACLE) + ' = 平地（要走）', 13, '#777', 'start');
   // 地面下方：數值與索引
   text(J.margin - 12, J.ground + 28, '值', 14, '#555', 'end');
   text(J.margin - 12, J.ground + 50, '索引', 14, '#555', 'end');
@@ -119,18 +124,20 @@ async function jumpStep(m, raw) {
     return Game.end(false, '地圖只有 ' + n + ' 格（索引 0～' + (n - 1) + '），沒有第 ' + i + ' 格');
   }
   const t = Game.map[i];
-  Game.show('第 ' + i + ' 格｜地形 ' + t + '｜動作 ' + m, i);
-  if (m === t) {                                              // 動作和地形吻合 → 通過
-    await glide(hx(i + 1), hy, t === 1 ? 70 : 0, t === 1 ? 500 : 350);
+  const rock = (t === OBSTACLE);                              // 這一格是障礙物嗎？
+  Game.show('第 ' + i + ' 格｜地形 ' + t + (rock ? '（障礙）' : '（平地）') +
+            '｜動作 ' + m + (m === JUMP ? '（跳）' : '（走）'), i);
+  if (m === (rock ? JUMP : WALK)) {                           // 動作和地形吻合 → 通過
+    await glide(hx(i + 1), hy, rock ? 70 : 0, rock ? 500 : 350);
     Game.pos = i + 1;
-  } else if (t === 1) {                                       // 障礙物，卻選了「走」
+  } else if (rock) {                                          // 障礙物，卻選了「走」
     await glide(bx(i) - R - 4, hy, 0, 300);
     await hurt();
-    Game.end(false, '第 ' + i + ' 格是障礙物（1），要跳（1），但動作是 ' + m);
+    Game.end(false, '第 ' + i + ' 格是障礙物（' + t + '），要跳（' + JUMP + '），但動作是 ' + m);
   } else {                                                    // 平地，卻選了「跳」
     await glide(hx(i + 1), hy, 70, 500);
     await hurt();
-    Game.end(false, '第 ' + i + ' 格是平地（0），要走（0），但動作是 ' + m);
+    Game.end(false, '第 ' + i + ' 格是平地（' + t + '），要走（' + WALK + '），但動作是 ' + m);
   }
 }
 
@@ -150,7 +157,8 @@ const MAZE = [
   '#################'
 ];
 const U = 60, M = 30;                                         // 一格的邊長、四周留白
-const DIRS = [null, [-1, 0], [1, 0], [0, -1], [0, 1]];       // 1 上、2 下、3 左、4 右（列變化, 行變化）
+const KEYS = { j: 0, w: 1, s: 2, a: 3, d: 4 };               // 鍵盤字母 → 內部代碼
+const DIRS = [null, [-1, 0], [1, 0], [0, -1], [0, 1]];       // 代碼 1 上、2 下、3 左、4 右（列變化, 行變化）
 const NAMES = ['跳', '上', '下', '左', '右'];
 const mx = c => M + c * U + U / 2;                            // 第 c 行的中心 x
 const my = r => M + r * U + U / 2;                            // 第 r 列的中心 y
@@ -178,8 +186,8 @@ Game.setMaze = function () {
   putHero(mx(0), my(0));
 };
 
-async function mazeStep(m, i) {
-  Game.show('第 ' + i + ' 步｜動作 ' + m + '（' + NAMES[m] + '）｜位置 (列 ' + Game.r + '，行 ' + Game.c + ')');
+async function mazeStep(m, i, k) {
+  Game.show('第 ' + i + ' 步｜動作 ' + k + '（' + NAMES[m] + '）｜位置 (列 ' + Game.r + '，行 ' + Game.c + ')');
   if (m === 0) return hopHere();                              // 0 = 跳：原地跳一下，不移動
   const [dr, dc] = DIRS[m];
   if (MAZE[2 * Game.r + 1 + dr][2 * Game.c + 1 + dc] === '#') {   // 前面是牆
@@ -221,14 +229,16 @@ Game.step = async function (raw) {
   if (Game.over) return;
   if (!Game.mode) return Game.end(false, '請先用 game.set_map(...) 或 game.set_maze() 建立地圖');
   const i = Game.n++;
-  const m = Number(raw);                    // 接受 0、"0"、False 這幾種寫法
-  const max = Game.mode === 'maze' ? 4 : 1;
-  if (!Number.isInteger(m) || m < 0 || m > max) {
+  const maze = (Game.mode === 'maze');
+  const k = String(raw).trim().toLowerCase();               // 迷宮：w、a、s、d、j（大小寫都可以）
+  const m = maze ? (Object.prototype.hasOwnProperty.call(KEYS, k) ? KEYS[k] : NaN)
+                 : (k === '' ? NaN : Number(raw));          // 跳躍：0、1（也接受 "0"、False 這幾種寫法）
+  if (!Number.isInteger(m) || m < 0 || (!maze && m > 1)) {
     Game.show('第 ' + i + ' 步｜動作 ' + raw);
     await hurt();
-    return Game.end(false, '第 ' + i + ' 步：動作 ' + raw + ' 不認得（只能是 0～' + max + '）');
+    return Game.end(false, '第 ' + i + ' 步：動作 ' + raw + ' 不認得（' + (maze ? '只能是 w、a、s、d、j' : '只能是 0 或 1') + '）');
   }
-  return Game.mode === 'maze' ? mazeStep(m, i) : jumpStep(m, raw);
+  return maze ? mazeStep(m, i, k) : jumpStep(m, raw);
 };
 
 // Python 整支程式跑完後呼叫：判定有沒有走到終點
