@@ -93,7 +93,7 @@ Game.setMap = function (arr) {
   const n = Game.map.length;
   $g('stage').setAttribute('viewBox', '0 0 ' + (n * J.cell + 2 * J.margin + 30) + ' 300');
   Game.hl = mk('rect', { x: 0, y: 50, width: J.cell, height: 220, fill: 'gold', opacity: 0 });   // 高亮目前這一格
-  // 地形 = 一條折線：1 = 凸起的障礙物，0 = 平地
+  // 地形 = 一條折線：障礙（OBSTACLE）= 凸起的方塊，其他 = 平地
   let d = 'M 10 ' + J.ground;
   Game.map.forEach((v, i) => {
     d += ' L ' + bx(i) + ' ' + J.ground;

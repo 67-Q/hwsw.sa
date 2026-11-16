@@ -21,12 +21,12 @@
     <h1>🎮 Python 陣列小遊戲</h1>
     <select id="examples" title="載入範例程式">
       <option value="">載入範例…</option>
-      <optgroup label="跳躍（0 走、1 跳）">
+      <optgroup label="跳躍（0 跳、1 走）">
         <option value="jump_L1">L1 改數字</option>
         <option value="jump_L2">L2 字串輸入</option>
         <option value="jump_L3">L3 迴圈走訪</option>
       </optgroup>
-      <optgroup label="迷宮（0 跳、1 上、2 下、3 左、4 右）">
+      <optgroup label="迷宮（w 上、s 下、a 左、d 右）">
         <option value="maze_L1">迷宮 L1 改數字</option>
         <option value="maze_L2">迷宮 L2 字串輸入</option>
       </optgroup>
@@ -64,9 +64,9 @@
       <div id="editorHost">
 <textarea id="code" spellcheck="false">import game
 
-game.set_map([0, 1, 1, 1, 0, 1, 0, 0])   # 地圖：0 = 平地，1 = 障礙
+game.set_map([0, 1, 1, 1, 0, 1, 0, 0])   # 地圖：0 = 障礙，1 = 平地
 
-moves = [0, 1, 1, 1, 0, 1, 0, 0]         # 你的動作：0 = 走，1 = 跳
+moves = [0, 1, 1, 1, 0, 1, 0, 0]         # 你的動作：0 = 跳，1 = 走
 # 試試看：改掉其中一個數字，角色會在第幾格失敗？
 
 game.play(moves)
