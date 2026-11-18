@@ -234,9 +234,10 @@ body.dragging { user-select: none; }
   padding: 4px 10px; min-height: 26px; background: var(--panel);
   border-bottom: 1px solid var(--line);
 }
-/* 舞台一律白底（像方格紙），深色模式也一樣 */
-#stageBox { flex: 1; min-height: 0; background: #fff; }
+/* 舞台一律羊皮紙背景，深色模式也一樣 */
+#stageBox { flex: 1; min-height: 0; background: #e8d3a8 url("art/地圖背景/parchmentAncient.png") center / cover; }
 #stage { display: block; width: 100%; height: 100%; }
+#stage .px { image-rendering: crisp-edges; image-rendering: pixelated; }   /* 像素角色放大時保持清晰 */
 #banner {
   font-size: 15px; font-weight: 700; padding: 4px 10px; min-height: 28px;
   background: var(--panel); border-top: 1px solid var(--line);

@@ -1,11 +1,16 @@
 Kenney Cartography Pack
 
 素材分類：
-- 素材/PNG/Default：一般尺寸 PNG 圖示
-- 素材/PNG/Retina：高解析 PNG 圖示
-- 背景紋理：羊皮紙背景
-- 精靈圖集：spritesheet PNG 與 XML 座標資料
-- 向量：SVG 向量素材
+- PNG/其他物件：旗子、水窪（lake、lakeRound）、寶箱、營火、石頭等圖示
+- PNG/建築物：房子、城堡、塔、橋、遺跡（ruins）等圖示
+- PNG/植物：松樹、灌木、仙人掌、棕櫚樹等圖示
+- PNG/牆壁：圍籬（fence）、大門（gate）、牆（wall）
+- PNG/道路：道路圖塊 path*（盡頭、直線、轉角、三岔、十字）與箭頭 arrow*
+- 圖集：spritesheet PNG 與 XML 座標資料（default 一般尺寸、retina 高解析）
 - 預覽：素材包預覽圖
+- cartographyPack_vector.svg：SVG 向量素材
+- 羊皮紙背景已移到 art/地圖背景
+
+注意：原素材包把 ruins 拼成 runis，圖集/spritesheet_default.xml 裡仍是 runis.png。
 
 授權：CC0，詳見 License.txt。來源：https://kenney.nl/assets/cartography-pack

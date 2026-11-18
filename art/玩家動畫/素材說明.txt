@@ -3,9 +3,11 @@
 來源：Eris Esra, Character Templates Pack 4.1
 https://erisesra.itch.io/character-templates-pack
 
-已按原始圖格裁切為單張透明 PNG。16x16 角色採 24x24 畫布；16x32 角色採 32x32 畫布。
-方向資料夾依原 spritesheet 列順序標記：下、下側、側面、上側、上。每個動作資料夾內以 01、02… 表示動畫影格順序。
+目前只有 16x16 角色（16x16 資料夾），動畫單格畫布為 24x24（跳躍圖集為 24x22）。
+- 16x16 資料夾：原始圖集 Walk、Run、Idle、Interact、Jump、Attack、Rotate、All Animations 的 -Sheet.png 與 .aseprite 原始檔
+- 16x16/分解動作：已裁成單張透明 PNG 的「走」「閒置」，方向資料夾依原 spritesheet 列順序標記：下、下側、側面、上側、上；每個動作資料夾內以 01、02… 表示動畫影格順序
+- 遊戲的跳躍直接切 16x16 Jump-Sheet.png，沒有分解檔
 
-素材包授權允許遊戲專案（商用與非商用）使用；不可重新包裝轉售為素材包。素材包原文要求：若成品免費，必須標註作者並連結原素材。
+授權：允許用在遊戲專案（商用與非商用）；不可重新包裝轉售為素材包。是否必須標註作者，請以原素材包 README 為準（itch.io 頁面寫的是歡迎標註、不強制），建議在網站標示作者與上面的連結。
 
-注意：素材包 4.1 沒有 Block（格擋／阻塞）動畫。網頁列出的目前動畫有 Walk、Run、Idle、Interact、Jump、Attack；另有 Rotate。本資料夾另存 Rotate 作為翻滾素材，不能當成格擋動畫。
+注意：素材包 4.1 沒有 Block（格擋／阻塞）動畫；Rotate 是翻滾動作，不能當成格擋動畫。

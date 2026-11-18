@@ -234,10 +234,10 @@ const EXAMPLES = {
   // ---------- 跳躍遊戲（地圖 0 = 障礙、1 = 平地；動作 0 = 跳、1 = 走） ----------
   jump_L1: `import game
 
-game.set_map([0, 1, 1, 1, 0, 1, 0, 0])   
+game.set_map([0, 1, 1, 1, 0, 1, 0, 0])   # 地圖：0 = 障礙，1 = 平地
 
-moves = [0, 1, 1, 1, 0, 1, 0, 0]        
-# 試試看改掉其中一個數字，角色會在第幾格失敗？
+moves = [0, 1, 1, 1, 0, 1, 0, 0]         # 你的動作：0 = 跳，1 = 走
+# 試試看：改掉其中一個數字，角色會在第幾格失敗？
 
 game.play(moves)
 `,
@@ -245,7 +245,7 @@ game.play(moves)
 
 game.set_map([0, 1, 1, 1, 0, 1, 0, 0])
 
-s = input("請輸入動作（例如 01110100）:")
+s = input("請輸入動作（例如 01110100）：")
 
 moves = []
 for ch in s:                   # 字串一個字一個字拿出來
@@ -265,13 +265,14 @@ for i in range(len(moves)):                      # i = 0, 1, 2, ...
     print("第", i, "步，動作是", moves[i])
     game.step(moves[i])                          # 角色做一步
 `,
-  // ---------- 迷宮遊戲（w 上、s 下、a 左、d 右、j 原地跳） ----------
+  // ---------- 森林迷宮（w 上、s 下、a 左、d 右、j 往面向的方向跳過水窪） ----------
   maze_L1: `import game
 
-game.set_maze()        # 載入迷宮：從左上角出發，紅色方塊是終點
+game.set_maze()        # 載入森林迷宮：從左上角出發，旗子是終點
 
-# 動作：w = 上、s = 下、a = 左、d = 右（j = 原地跳一下）
-moves = ["s", "s", "d", "d"]   
+# 動作：w = 上，s = 下，a = 左，d = 右
+# 樹要繞過去；水窪要用 j 跳過（往角色面向的方向跳一格）
+moves = ["d", "j", "d", "s"]   # 先走四步看看，再接著往後面加
 
 game.play(moves)
 `,
@@ -279,13 +280,205 @@ game.play(moves)
 
 game.set_maze()
 
-s = input("請輸入動作（例如 ssddwa）：")
+s = input("請輸入動作（例如 djdssaa）：")
 
 moves = []
 for ch in s:
     moves.append(ch)          # 字母直接放進去，不用轉成數字
 
 print("共", len(moves), "步")
+game.play(moves)
+`,
+  maze_L3: `import game
+
+game.set_maze("loop")
+
+segment = ["d", "j", "s", "s"]
+repeats = 3
+
+print("每段動作：", segment)
+print("規劃動作數：", len(segment) * repeats)
+
+for i in range(repeats):
+    print("第", i + 1, "段")
+    game.play(segment)
+`,
+  // ---------- 森林迷宮 13 關（只給開頭與提示，不放完整解答） ----------
+  L1: `import game
+
+game.set_maze("L1")    # 第 1 關：森林入口
+
+# 動作：d = 右，s = 下（一個字母走一格）
+# 先數格子：往右要走幾格？往下要走幾格？
+moves = ["d", "d"]     # 已經走了兩步，請接著往後加
+
+game.play(moves)
+`,
+  L2: `import game
+
+game.set_maze("L2")    # 第 2 關：曲折小徑
+
+# 先把道路拆成幾條直路，再照順序接起來
+# 執行前先猜猜看：第一次轉彎是第幾個動作？
+moves = ["d", "d", "s"]     # 請接著往後加
+
+game.play(moves)
+`,
+  L3: `import game
+
+game.set_maze("L3")    # 第 3 關：第一座水窪
+
+# 水窪不能直接走進去，要用 j 跳過（一次跨兩格）
+# j 是往角色「目前面向」的方向跳，所以要先朝水窪走一步，再跳
+moves = ["d", "d", "s", "s"]     # 請接著往後加
+
+game.play(moves)
+`,
+  L4: `import game
+
+game.set_maze("L4")    # 第 4 關：繞路才有出口
+
+# 這一關會用到 w = 上、a = 左
+# 離旗子比較近的路，不一定真的通到旗子，先用眼睛走一遍
+moves = ["s", "s"]     # 請接著往後加
+
+game.play(moves)
+`,
+  L5: `import game
+
+game.set_maze("L5")    # 第 5 關：一步一步執行
+
+moves = ["d", "d", "j"]        # 請接著往後加，走到旗子
+
+for move in moves:             # 每一輪只拿出一個動作
+    print("動作：", move)
+    game.step(move)            # 角色做一步
+`,
+  L6: `import game
+
+game.set_maze("L6")    # 第 6 關：數清直路
+
+# 直路跨過幾格，就要走幾步（起點那一格不算）
+for i in range(7):       # 第一條直路：往右 7 步
+    game.step("d")
+
+for i in range(2):       # 第二條直路：往下 2 步
+    game.step("s")
+
+# 後面還有三條直路，請照樣寫下去
+# 執行前先猜猜看：如果少走一步，角色會停在哪裡？
+`,
+  L7: `import game
+
+game.set_maze("L7")    # 第 7 關：修好路線計畫
+
+# 這份路線計畫有 2 個地方寫錯了，請找出來並修好
+moves = ["s", "s", "s", "s", "s", "s", "d", "w", "w", "w", "w", "w",
+         "w", "d", "d", "s", "s", "s", "s", "s", "j", "j", "d"]
+
+for i in range(len(moves)):              # i 是索引，從 0 開始
+    print("索引", i, "動作", moves[i])
+    game.step(moves[i])
+# 提示：失敗訊息裡的「第幾步」就是索引
+`,
+  L8: `import game
+
+game.set_maze("L8")    # 第 8 關：迴圈階梯
+
+segment = ["d", "j", "s", "s"]   # 一段路線
+repeats = 1                      # 這段路線要重複幾次才會到旗子？請修改
+
+print("規劃動作數：", len(segment) * repeats)
+
+for i in range(repeats):
+    print("第", i + 1, "段")
+    game.play(segment)
+# 過關後試試看：少重複一次，角色會停在哪裡？
+`,
+  L9: `import game
+
+game.set_maze("L9")    # 第 9 關：反向的階梯
+
+for i in range(9):         # 引導段：沿著上面往右 9 步
+    game.step("d")
+game.play(["s", "s"])      # 再往下 2 步
+
+segment = []               # 重複段：請填入「一段」的動作（這次是往左的階梯）
+repeats = 3
+
+for i in range(repeats):
+    game.play(segment)
+
+# 終點段：請自己寫（先往下，再沿著下面往右）
+`,
+  L10: `import game
+
+game.set_maze("L10")   # 第 10 關：森林的重複規律（從右上走到左下）
+
+moves = []
+segment = ["a", "a", "w"]      # 走完一個「67」：只寫了開頭，請補完（一段有 11 個動作）
+repeats = 3
+
+for i in range(repeats):       # 外層：重複整段
+    for move in segment:       # 內層：一次放進一個動作
+        moves.append(move)
+
+print("共", len(moves), "個動作")
+game.play(moves)
+`,
+  L11: `import game
+
+game.set_maze("L11")   # 第 11 關：最後一段不一樣
+
+segment = ["d", "j"]       # 重複的一段：還少一個動作，請補上
+repeats = 3
+tail = []                  # 尾段：和前面的規律不一樣，請自己填（共 12 個動作）
+
+for i in range(repeats):
+    game.play(segment)
+
+game.play(tail)
+`,
+  L12: `import game
+
+game.set_maze("L12")   # 第 12 關：比較兩條路
+
+# 有兩條路都能到旗子：一條先往右，一條先往下
+route_a = ["d", "d", "d", "d", "j"]    # 先往右的路：請接著寫完
+route_b = ["s", "s", "s"]              # 先往下的路：請接著寫完
+
+print("route_a 共", len(route_a), "個動作")
+print("route_b 共", len(route_b), "個動作")
+
+moves = route_a            # 想走哪一條，就把它放進 moves
+for move in moves:
+    game.step(move)
+# 注意：一次 j 算一個動作，但是位置跨了兩格
+`,
+  L13: `import game
+
+game.set_maze("L13")   # 第 13 關：森林畢業考
+
+# 先把路線拆成：引導段 → 重複段 A → 連接段 → 重複段 B → 尾段
+moves = ["d"]              # 引導段
+
+seg_a = []                 # 重複段 A：請自己找出來
+for i in range(3):
+    for move in seg_a:
+        moves.append(move)
+
+# 連接段、重複段 B：請接著寫
+
+# 尾段：三條橫道的走法一樣（下 2 步 → 走一段 → 跳 → 再走一段），只有方向不同
+directions = []                # 三條橫道各往哪個方向，請填
+for d in directions:           # 外層：一條橫道
+    moves.append("s")
+    moves.append("s")
+    for i in range(0):         # 內層：同一個方向走幾步？請改 0
+        moves.append(d)
+    # 請補完：跳過水窪，再用一個 for 走完這條橫道
+
+print("共", len(moves), "個動作")
 game.play(moves)
 `
 };
@@ -295,7 +488,8 @@ $('examples').onchange = e => {
   if (EXAMPLES[v]) {
     setCode(EXAMPLES[v]);
     out.textContent = '';
-    if (v.startsWith('maze')) Game.setMaze();                       // 先預覽這個範例的地圖
+    if (/^L\d+$/.test(v)) Game.setMaze(v);              // 13 關：範例名稱就是迷宮名稱
+    else if (v.startsWith('maze')) Game.setMaze(v === 'maze_L3' ? 'loop' : 'forest');
     else Game.setMap([0, 1, 1, 1, 0, 1, 0, 0]);
   }
   e.target.value = '';
