@@ -115,6 +115,7 @@ function loadCss(urls) {
     });
     // 編輯區大小改變（拖曳分隔線）時，讓 CodeMirror 重新計算
     new ResizeObserver(() => cm.refresh()).observe($('editorHost'));
+    cm.on('change', saveChallengeCode);
   } catch (e) {
     cm = null;                      // 退回普通文字框
   }
@@ -127,6 +128,7 @@ codeBox.addEventListener('keydown', e => {
     const s = codeBox.selectionStart, en = codeBox.selectionEnd;
     codeBox.value = codeBox.value.slice(0, s) + '    ' + codeBox.value.slice(en);
     codeBox.selectionStart = codeBox.selectionEnd = s + 4;
+    saveChallengeCode();
   } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
     runCode();
@@ -156,13 +158,23 @@ function builtinRead(x) {
   return Sk.builtinFiles['files'][x];
 }
 
+function updateRunControls() {
+  runBtn.disabled = running || !skulptReady;
+  for (const id of ['examples', 'challengeBtn', 'clearBtn', 'restartChallengeBtn',
+                    'leaveChallengeBtn', 'nextLevelBtn', 'editLevelBtn']) {
+    $(id).disabled = running;
+  }
+}
+
 async function runCode() {
   if (!skulptReady || running) return;
   running = true;
-  runBtn.disabled = true;
+  updateRunControls();
+  saveChallengeCode();
+  $('levelResult').hidden = true;
   statusEl.textContent = '執行中…';
   out.textContent = '';
-  Game.redraw();                              // 【遊戲版】用同一張地圖重新擺好，角色回到起點
+  Game.redraw();
 
   Sk.configure({
     output: t => addOut(t, false),
@@ -170,37 +182,63 @@ async function runCode() {
     __future__: Sk.python3,
     inputfun: p => { const v = prompt(p || ''); return v === null ? '' : v; },
     inputfunTakesPrompt: true,
-    yieldLimit: 100,                          // 讓畫面可以即時更新、也能按「停止」
+    yieldLimit: 100,
     execLimit: Number.POSITIVE_INFINITY
   });
 
   try {
     await Sk.misceval.asyncToPromise(() =>
       Sk.importMainWithBody('<stdin>', false, getCode(), true));
-    await Game.finish();                      // 【遊戲版】程式跑完了：判定有沒有走到終點
+    if (challenge.active && (Game.mode !== 'maze' || Game.mazeName !== currentLevel().id)) {
+      Game.end(false, '目前是第 ' + (challenge.level + 1) + ' 關，請保留 game.set_maze("' + currentLevel().id + '")');
+    } else {
+      await Game.finish();
+      if (challenge.active && Game.result && Game.result.ok && !stopRequested) {
+        const id = currentLevel().id;
+        if (!challenge.completed.includes(id)) challenge.completed.push(id);
+        saveChallenge();
+        updateChallengeBar();
+        showLevelResult(Game.result.msg);
+      }
+    }
   } catch (e) {
     if (e.toString().includes('TimeLimitError')) {
       Game.over = true;
-      addOut('\n⏹ 已停止執行\n', true);       // 按「停止」時顯示的友善訊息
+      addOut('\n⏹ 已停止執行\n', true);
     } else {
       addOut('\n' + e.toString() + '\n', true);
-      if (e.toString().includes('IndexError')) {   // 【遊戲版】索引超出範圍：角色掉下去
+      if (e.toString().includes('IndexError')) {
         await Game.fall();
         Game.end(false, 'IndexError：沒有這一格');
+      } else if (challenge.active && Game.result && Game.result.ok) {
+        Game.end(false, '程式仍有錯誤，請修正後再執行');
       }
     }
+  } finally {
+    if (stopRequested && challenge.active) Game.end(false, '已停止執行，請重新執行本關');
+    running = false;
+    stopRequested = false;
+    updateRunControls();
+    statusEl.textContent = '✅ 準備好了';
+    if (!$('levelResult').hidden) {
+      ($('nextLevelBtn').hidden ? $('editLevelBtn') : $('nextLevelBtn')).focus();
+    }
   }
-  running = false;
-  runBtn.disabled = false;
-  statusEl.textContent = '✅ 準備好了';
 }
 
+let stopRequested = false;
 runBtn.onclick = runCode;
 $('stopBtn').onclick = () => {
-  if (running && window.Sk) { Sk.execLimit = 1; Game.over = true; }   // Game.over：讓還在跑的動作立刻結束
+  if (running && window.Sk) {
+    stopRequested = true;
+    Sk.execLimit = 1;
+    Game.over = true;
+  }
 };
 $('clearBtn').onclick = () => {
+  if (running) return;
   out.textContent = '';
+  $('levelResult').hidden = true;
   Game.redraw();
 };
 
@@ -483,14 +521,145 @@ game.play(moves)
 `
 };
 
+const LEVELS = ['森林入口', '曲折小徑', '第一座水窪', '繞路才有出口',
+  '一步一步執行', '數清直路', '修好路線計畫', '迴圈階梯', '反向的階梯',
+  '森林的重複規律', '最後一段不一樣', '比較兩條路', '森林畢業考']
+  .map((name, i) => ({ id: 'L' + (i + 1), name }));
+const CHALLENGE_KEY = 'pythonGame.challenge.v1';
+let challenge = { active: false, level: 0, completed: [], codes: {} };
+let practice = null, progressSaved = true;
+
+try {
+  const saved = JSON.parse(localStorage.getItem(CHALLENGE_KEY));
+  if (saved && Number.isInteger(saved.level) && saved.level >= 0 && saved.level < LEVELS.length) {
+    challenge.level = saved.level;
+    challenge.active = saved.active === true;
+    if (Array.isArray(saved.completed)) {
+      challenge.completed = LEVELS.filter(level => saved.completed.includes(level.id)).map(level => level.id);
+    }
+    if (saved.codes && typeof saved.codes === 'object') {
+      for (const level of LEVELS) {
+        if (typeof saved.codes[level.id] === 'string') challenge.codes[level.id] = saved.codes[level.id];
+      }
+    }
+    const draft = saved.practice;
+    if (draft && typeof draft.code === 'string' &&
+        ((draft.mode === 'maze' && ['forest', 'loop', ...LEVELS.map(level => level.id)].includes(draft.maze)) ||
+         (draft.mode === 'jump' && Array.isArray(draft.map) && draft.map.every(Number.isFinite)))) {
+      practice = draft;
+    }
+  }
+} catch (e) {
+  progressSaved = false;
+}
+
+function currentLevel() { return LEVELS[challenge.level]; }
+
+function saveChallenge() {
+  try {
+    localStorage.setItem(CHALLENGE_KEY, JSON.stringify({ ...challenge, practice }));
+    progressSaved = true;
+  } catch (e) {
+    progressSaved = false;
+  }
+  $('saveStatus').textContent = progressSaved
+    ? '進度與程式碼儲存在這台電腦的瀏覽器'
+    : '無法儲存：關閉或重新整理後會失去本次進度';
+}
+
+function saveChallengeCode() {
+  if (!challenge.active) return;
+  challenge.codes[currentLevel().id] = getCode();
+  saveChallenge();
+}
+codeBox.addEventListener('input', saveChallengeCode);
+
+function updateChallengeBar() {
+  $('challengeBar').hidden = !challenge.active;
+  $('challengeBtn').setAttribute('aria-pressed', String(challenge.active));
+  $('levelResult').hidden = true;
+  if (!challenge.active) return;
+  $('levelTitle').textContent = '第 ' + (challenge.level + 1) + ' / ' + LEVELS.length + ' 關｜' + currentLevel().name;
+  $('levelProgress').textContent = '已完成 ' + challenge.completed.length + ' / ' + LEVELS.length + ' 關';
+}
+
+function showLevelResult(msg) {
+  const allDone = challenge.completed.length === LEVELS.length;
+  $('resultTitle').textContent = allDone ? '13 關全部完成！' : '第 ' + (challenge.level + 1) + ' 關已完成';
+  $('resultText').textContent = allDone
+    ? '恭喜完成森林畢業考！可以繼續修改程式，或按「重新闖關」再挑戰。'
+    : (msg || '這一關的進度已保存，可以繼續前往下一關。');
+  $('nextLevelBtn').hidden = challenge.level === LEVELS.length - 1;
+  $('levelResult').hidden = false;
+}
+
+function loadChallengeLevel(index) {
+  challenge.level = index;
+  const level = currentLevel();
+  setCode(challenge.codes[level.id] ?? EXAMPLES[level.id]);
+  out.textContent = '';
+  Game.setMaze(level.id);
+  updateChallengeBar();
+  saveChallengeCode();
+  if (challenge.completed.includes(level.id)) showLevelResult();
+}
+
+function rememberPractice() {
+  practice = { code: getCode(), mode: Game.mode, maze: Game.mazeName, map: Game.map.slice() };
+}
+
+$('challengeBtn').onclick = () => {
+  if (running || challenge.active) return;
+  rememberPractice();
+  challenge.active = true;
+  loadChallengeLevel(challenge.level);
+};
+$('nextLevelBtn').onclick = () => {
+  if (running || !challenge.active || $('levelResult').hidden ||
+      !challenge.completed.includes(currentLevel().id) || challenge.level === LEVELS.length - 1) return;
+  saveChallengeCode();
+  loadChallengeLevel(challenge.level + 1);
+  if (cm) cm.focus(); else codeBox.focus();
+};
+$('editLevelBtn').onclick = () => {
+  if (running) return;
+  $('levelResult').hidden = true;
+  if (cm) cm.focus(); else codeBox.focus();
+};
+$('leaveChallengeBtn').onclick = () => {
+  if (running || !challenge.active) return;
+  saveChallengeCode();
+  challenge.active = false;
+  saveChallenge();
+  updateChallengeBar();
+  setCode(practice.code);
+  out.textContent = '';
+  if (practice.mode === 'maze') Game.setMaze(practice.maze);
+  else Game.setMap(practice.map);
+};
+$('restartChallengeBtn').onclick = () => {
+  if (running || !challenge.active || !confirm('重新闖關會清除這 13 關的完成紀錄與程式碼，從第 1 關開始。確定嗎？')) return;
+  challenge = { active: true, level: 0, completed: [], codes: {} };
+  loadChallengeLevel(0);
+};
+
 $('examples').onchange = e => {
+  if (running) { e.target.value = ''; return; }
   const v = e.target.value;
-  if (EXAMPLES[v]) {
+  if (EXAMPLES[v] && !/^L\d+$/.test(v)) {
+    saveChallengeCode();
+    challenge.active = false;
+    saveChallenge();
+    updateChallengeBar();
     setCode(EXAMPLES[v]);
     out.textContent = '';
-    if (/^L\d+$/.test(v)) Game.setMaze(v);              // 13 關：範例名稱就是迷宮名稱
-    else if (v.startsWith('maze')) Game.setMaze(v === 'maze_L3' ? 'loop' : 'forest');
+    if (v.startsWith('maze')) Game.setMaze(v === 'maze_L3' ? 'loop' : 'forest');
     else Game.setMap([0, 1, 1, 1, 0, 1, 0, 0]);
   }
   e.target.value = '';
 };
+
+if (challenge.active) {
+  if (!practice) rememberPractice();
+  loadChallengeLevel(challenge.level);
+}

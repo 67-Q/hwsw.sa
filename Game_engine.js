@@ -434,7 +434,7 @@ async function mazeStep(m, i, k) {
 
 /* ===================== 【區塊】共用：重設、步驟、結束判定 ===================== */
 Game.reset = function () {                  // 清空舞台與訊息
-  Game.over = false; Game.n = 0; Game.hl = null; hero = null;
+  Game.over = false; Game.result = null; Game.n = 0; Game.hl = null; hero = null;
   $g('stage').textContent = '';
   addDefs();
   $g('mon').textContent = '';
@@ -450,6 +450,7 @@ Game.show = function (str, i) {             // 上方提示列；跳躍遊戲會
 };
 Game.end = function (ok, msg) {
   Game.over = true;
+  Game.result = { ok, msg };
   $g('banner').textContent = (ok ? '🎉 過關！' : '💥 失敗：') + msg;
   $g('banner').className = ok ? 'win' : 'lose';
 };

@@ -32,22 +32,8 @@
         <option value="maze_L2">迷宮 L2 字串輸入</option>
         <option value="maze_L3">迷宮 L3 迴圈階梯</option>
       </optgroup>
-      <optgroup label="森林迷宮 13 關（由簡單到困難）">
-        <option value="L1">第 1 關 森林入口</option>
-        <option value="L2">第 2 關 曲折小徑</option>
-        <option value="L3">第 3 關 第一座水窪</option>
-        <option value="L4">第 4 關 繞路才有出口</option>
-        <option value="L5">第 5 關 一步一步執行</option>
-        <option value="L6">第 6 關 數清直路</option>
-        <option value="L7">第 7 關 修好路線計畫</option>
-        <option value="L8">第 8 關 迴圈階梯</option>
-        <option value="L9">第 9 關 反向的階梯</option>
-        <option value="L10">第 10 關 森林的重複規律</option>
-        <option value="L11">第 11 關 最後一段不一樣</option>
-        <option value="L12">第 12 關 比較兩條路</option>
-        <option value="L13">第 13 關 森林畢業考</option>
-      </optgroup>
     </select>
+    <button id="challengeBtn">遊戲闖關</button>
     <span id="status">載入 Python 中…</span>
     <button id="themeBtn" title="切換淺色／深色">🌙 深色</button>
     <button id="runBtn" disabled>▶ 執行 (Ctrl+Enter)</button>
@@ -60,9 +46,26 @@
     <section id="left">
       <div id="graphWrap">
         <div class="label">遊戲畫面</div>
+        <div id="challengeBar" hidden>
+          <div>
+            <strong id="levelTitle"></strong>
+            <span id="levelProgress" aria-live="polite"></span>
+            <small id="saveStatus"></small>
+          </div>
+          <button id="restartChallengeBtn">重新闖關</button>
+          <button id="leaveChallengeBtn">返回範例</button>
+        </div>
         <div id="mon"></div>
         <div id="stageBox">
           <svg id="stage" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg>
+          <section id="levelResult" role="region" aria-labelledby="resultTitle" aria-live="polite" hidden>
+            <h2 id="resultTitle"></h2>
+            <p id="resultText"></p>
+            <div class="resultActions">
+              <button id="nextLevelBtn">下一關</button>
+              <button id="editLevelBtn">繼續修改</button>
+            </div>
+          </section>
         </div>
         <div id="banner"></div>
       </div>
