@@ -73,7 +73,7 @@ body {
   display: flex; flex-direction: column;
 }
 header {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   padding: 8px 14px; background: var(--panel); border-bottom: 1px solid var(--line);
 }
 header h1 { font-size: 18px; margin: 0; flex: 1; }
@@ -84,7 +84,8 @@ button {
   background: var(--btn-bg); color: var(--text);
 }
 #runBtn { background: var(--accent); color: #fff; }
-#runBtn:disabled { opacity: .4; cursor: not-allowed; }
+button:disabled, select:disabled { opacity: .4; cursor: not-allowed; }
+[hidden] { display: none !important; }
 #examples {
   font-size: 14px; padding: 5px 8px; border-radius: 6px;
   background: var(--btn-bg); color: var(--text); border: 0;
@@ -235,7 +236,7 @@ body.dragging { user-select: none; }
   border-bottom: 1px solid var(--line);
 }
 /* 舞台一律羊皮紙背景，深色模式也一樣 */
-#stageBox { flex: 1; min-height: 0; background: #e8d3a8 url("art/地圖背景/parchmentAncient.png") center / cover; }
+#stageBox { flex: 1; min-height: 0; position: relative; background: #e8d3a8 url("art/地圖背景/parchmentAncient.png") center / cover; }
 #stage { display: block; width: 100%; height: 100%; }
 #stage .px { image-rendering: crisp-edges; image-rendering: pixelated; }   /* 像素角色放大時保持清晰 */
 #banner {
@@ -244,3 +245,25 @@ body.dragging { user-select: none; }
 }
 #banner.win  { color: #1b8a2f; }
 #banner.lose { color: var(--err); }
+
+#challengeBtn, #nextLevelBtn { background: var(--accent); color: #fff; }
+#challengeBar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  padding: 8px 10px; background: var(--panel); border-bottom: 1px solid var(--line);
+}
+#challengeBar > div { flex: 1; min-width: 180px; }
+#levelTitle { display: block; font-size: 15px; }
+#levelProgress { display: block; margin-top: 4px; font-size: 13px; }
+#saveStatus { display: block; margin-top: 3px; font-size: 12px; opacity: .8; }
+#challengeBar button { padding: 6px 10px; font-size: 13px; }
+#levelResult {
+  position: absolute; right: 12px; bottom: 12px; z-index: 10;
+  box-sizing: border-box; width: min(340px, calc(100% - 24px));
+  max-height: calc(100% - 24px); overflow: auto; padding: 16px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--panel); color: var(--text); box-shadow: 0 6px 24px rgba(0,0,0,.25);
+}
+#resultTitle { margin: 0 0 8px; font-size: 20px; }
+#resultText { margin: 0 0 14px; font-size: 14px; line-height: 1.5; }
+.resultActions { display: flex; flex-wrap: wrap; gap: 8px; }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
