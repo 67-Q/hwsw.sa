@@ -275,7 +275,7 @@ const EXAMPLES = {
 game.set_map([0, 1, 1, 1, 0, 1, 0, 0])   # 地圖：0 = 障礙，1 = 平地
 
 moves = [0, 1, 1, 1, 0, 1, 0, 0]         # 你的動作：0 = 跳，1 = 走
-# 試試看：改掉其中一個數字，角色會在第幾格失敗？
+# 試試看改掉其中一個數字，角色會在第幾格失敗？
 
 game.play(moves)
 `,
@@ -306,7 +306,7 @@ for i in range(len(moves)):                      # i = 0, 1, 2, ...
   // ---------- 森林迷宮（w 上、s 下、a 左、d 右、j 往面向的方向跳過水窪） ----------
   maze_L1: `import game
 
-game.set_maze()        # 載入森林迷宮：從左上角出發，旗子是終點
+game.set_maze()        
 
 # 動作：w = 上，s = 下，a = 左，d = 右
 # 樹要繞過去；水窪要用 j 跳過（往角色面向的方向跳一格）
@@ -347,7 +347,7 @@ for i in range(repeats):
 game.set_maze("L1")    # 第 1 關：森林入口
 
 # 動作：d = 右，s = 下（一個字母走一格）
-# 先數格子：往右要走幾格？往下要走幾格？
+# 先數格子，往右要走幾格？往下要走幾格？
 moves = ["d", "d"]     # 已經走了兩步，請接著往後加
 
 game.play(moves)
@@ -366,7 +366,8 @@ game.play(moves)
 
 game.set_maze("L3")    # 第 3 關：第一座水窪
 
-# 水窪不能直接走進去，要用 j 跳過（一次跨兩格）
+# 水窪不能直接走進去，要用 j 跳過（不要玩深水炸彈）
+# 注意：一次 j 算一個水窪，不分大小水窪我只是放著好看🤓
 # j 是往角色「目前面向」的方向跳，所以要先朝水窪走一步，再跳
 moves = ["d", "d", "s", "s"]     # 請接著往後加
 
@@ -377,7 +378,6 @@ game.play(moves)
 game.set_maze("L4")    # 第 4 關：繞路才有出口
 
 # 這一關會用到 w = 上、a = 左
-# 離旗子比較近的路，不一定真的通到旗子，先用眼睛走一遍
 moves = ["s", "s"]     # 請接著往後加
 
 game.play(moves)
@@ -431,7 +431,7 @@ print("規劃動作數：", len(segment) * repeats)
 for i in range(repeats):
     print("第", i + 1, "段")
     game.play(segment)
-# 過關後試試看：少重複一次，角色會停在哪裡？
+# 過關後試試看少重複一次，角色會停在哪裡？
 `,
   L9: `import game
 
@@ -447,14 +447,14 @@ repeats = 3
 for i in range(repeats):
     game.play(segment)
 
-# 終點段：請自己寫（先往下，再沿著下面往右）
+# 終點段請自己寫 提示：先往下，再沿著下面往右
 `,
   L10: `import game
 
 game.set_maze("L10")   # 第 10 關：森林的重複規律（從右上走到左下）
 
 moves = []
-segment = ["a", "a", "w"]      # 走完一個「67」：只寫了開頭，請補完（一段有 11 個動作）
+segment = ["a", "a", "w"]      # 走完一個「67」：只寫了開頭，請補完 提示：一段有 11 個動作
 repeats = 3
 
 for i in range(repeats):       # 外層：重複整段
@@ -491,11 +491,11 @@ print("route_b 共", len(route_b), "個動作")
 moves = route_a            # 想走哪一條，就把它放進 moves
 for move in moves:
     game.step(move)
-# 注意：一次 j 算一個動作，但是位置跨了兩格
+
 `,
   L13: `import game
 
-game.set_maze("L13")   # 第 13 關：森林畢業考
+game.set_maze("L13")   # 第 13 關槽狀迴圈
 
 # 先把路線拆成：引導段 → 重複段 A → 連接段 → 重複段 B → 尾段
 moves = ["d"]              # 引導段
@@ -514,7 +514,7 @@ for d in directions:           # 外層：一條橫道
     moves.append("s")
     for i in range(0):         # 內層：同一個方向走幾步？請改 0
         moves.append(d)
-    # 請補完：跳過水窪，再用一個 for 走完這條橫道
+    # 請補完程式碼 提示：跳過水窪，再用一個 for 走完這條橫道
 
 print("共", len(moves), "個動作")
 game.play(moves)
@@ -564,7 +564,7 @@ function saveChallenge() {
   }
   $('saveStatus').textContent = progressSaved
     ? '進度與程式碼儲存在這台電腦的瀏覽器'
-    : '無法儲存：關閉或重新整理後會失去本次進度';
+    : '無法儲存：關閉或重新整理後會失去本次進度ㄛ';
 }
 
 function saveChallengeCode() {
@@ -587,7 +587,7 @@ function showLevelResult(msg) {
   const allDone = challenge.completed.length === LEVELS.length;
   $('resultTitle').textContent = allDone ? '13 關全部完成！' : '第 ' + (challenge.level + 1) + ' 關已完成';
   $('resultText').textContent = allDone
-    ? '恭喜完成森林畢業考！可以繼續修改程式，或按「重新闖關」再挑戰。'
+    ? 'ㄧㄝ恭喜同學完成森林畢業考！可以繼續修改程式，或按「重新闖關」再挑戰。（記得截圖或是拍照此畫面）'
     : (msg || '這一關的進度已保存，可以繼續前往下一關。');
   $('nextLevelBtn').hidden = challenge.level === LEVELS.length - 1;
   $('levelResult').hidden = false;
@@ -638,7 +638,7 @@ $('leaveChallengeBtn').onclick = () => {
   else Game.setMap(practice.map);
 };
 $('restartChallengeBtn').onclick = () => {
-  if (running || !challenge.active || !confirm('重新闖關會清除這 13 關的完成紀錄與程式碼，從第 1 關開始。確定嗎？')) return;
+  if (running || !challenge.active || !confirm('重新闖關會清除這 13 關的完成紀錄與程式碼，從第 1 關開始。are you sure🤨？')) return;
   challenge = { active: true, level: 0, completed: [], codes: {} };
   loadChallengeLevel(0);
 };

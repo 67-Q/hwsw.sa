@@ -421,7 +421,7 @@ async function mazeStep(m, i, k) {
     if (t1 !== '.') {                                         // 前面是樹、水窪或森林外面
       await glide(cur.x + dc * U * 0.3, cur.y + dr * U * 0.3, 0, 200);
       await hurt();
-      return Game.end(false, '第 ' + i + ' 步：往' + dirName + (t1 === null ? '會走出森林' : t1 === '#' ? '撞到樹了' : '會掉進水窪，水窪要用 j 跳過去') + where());
+      return Game.end(false, '第 ' + i + ' 步：往' + dirName + (t1 === null ? '會走出森林' : t1 === '#' ? '撞到樹了辣' : '會掉進水窪，水窪要用 j 跳過去噢，不要玩深水炸彈!!!') + where());
     }
     Game.r += dr; Game.c += dc;
     await glide(mx(Game.c), feet(Game.r), 0, 300);
@@ -451,7 +451,7 @@ Game.show = function (str, i) {             // 上方提示列；跳躍遊戲會
 Game.end = function (ok, msg) {
   Game.over = true;
   Game.result = { ok, msg };
-  $g('banner').textContent = (ok ? '🎉 過關！' : '💥 失敗：') + msg;
+  $g('banner').textContent = (ok ? 'ㄧㄝ🎉 過關！' : 'ㄅㄧㄤ💥 失敗了：') + msg;
   $g('banner').className = ok ? 'win' : 'lose';
 };
 
@@ -485,7 +485,7 @@ Game.finish = async function () {
       Game.end(false, '動作用完了，只走到第 ' + Game.pos + ' 格，還沒到終點（共 ' + n + ' 格）');
     }
   } else {
-    Game.end(false, '動作用完了，還在 (列 ' + Game.r + '，行 ' + Game.c + ')，還沒走到旗子');
+    Game.end(false, '動作用完了，還在 (列 ' + Game.r + '，行 ' + Game.c + ')，還沒走到旗子喔');
   }
 };
 
